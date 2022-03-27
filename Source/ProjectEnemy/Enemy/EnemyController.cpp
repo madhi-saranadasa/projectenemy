@@ -10,6 +10,5 @@ void AEnemyController::BeginPlay()
 	Super::BeginPlay();
 
 	// Start behavior tree
-	UE_LOG(LogTemp, Warning, TEXT("Starting the behavior tree"));
 	RunBehaviorTree(BehaviorTree);
 }

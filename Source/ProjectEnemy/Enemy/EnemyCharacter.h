@@ -9,6 +9,8 @@
 #include "EnemyCharacter.generated.h"
 
 class UPawnSensingComponent;
+class UEnemyHealthComponent;
+class UEnemySightComponent;
 class UNiagaraSystem;
 
 UCLASS()
@@ -22,14 +24,18 @@ public:
 
 protected:
 
-	UPROPERTY(EditAnywhere)
-	UPawnSensingComponent* SenseComp;
+	UPROPERTY(EditDefaultsOnly)
+	UEnemyHealthComponent* HealthComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	UEnemySightComponent* SightComp;
 
 	UPROPERTY()
 	UBlackboardComponent* BBComp;
 
-	UPROPERTY(EditDefaultsOnly)
-	UNiagaraSystem* HitParticles;
+protected:
+
+	bool bMarkedForDeath = false;
 
 protected:
 
@@ -46,14 +52,22 @@ public:
 	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation);
 
 	UFUNCTION()
-	virtual void OnPawnSeen(APawn* Pawn);
+	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void MarkForDeath();
+
+	UFUNCTION()
+	virtual void OnSight(ACharacter* InstigatorCharacter);
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	virtual void ExecuteDeath();
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	virtual bool GetDeathStatus();
 
 private:
 
 	void RegisterBlackboardComponent();
-
 
 };

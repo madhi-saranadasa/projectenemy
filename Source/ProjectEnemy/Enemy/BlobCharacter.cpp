@@ -5,6 +5,7 @@
 #include <Components/CapsuleComponent.h>
 #include <GameFramework/CharacterMovementComponent.h>
 #include <../Plugins/FX/Niagara/Source/Niagara/Public/NiagaraFunctionLibrary.h>
+#include "EnemyHealthComponent.h"
 
 
 ABlobCharacter::ABlobCharacter()
@@ -22,6 +23,9 @@ ABlobCharacter::ABlobCharacter()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 360.0f);
 	GetCharacterMovement()->MaxAcceleration = 200.0f;
 	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+
+	// Health settings
+	HealthComp->MaxHealth = 2;
 }
 
 
@@ -35,34 +39,21 @@ void ABlobCharacter::BeginPlay()
 
 void ABlobCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
 {
-	if (BBComp->GetValueAsEnum("CurrentBlobState") != (uint8)EBlobStateName::HIT)
+	if (!IsState(EBlobStateName::HIT))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Blob took damage"));
-
 		// Store hit direction
 		FVector HitDirection = GetActorLocation() - InstigatorPawn->GetActorLocation();
 		HitDirection = HitDirection.GetUnsafeNormal2D();
 		BBComp->SetValueAsVector("HitDirection", HitDirection);
 
-		// Change state
-		BBComp->SetValueAsEnum("CurrentBlobState", (uint8)EBlobStateName::HIT);
-
 		// Play hit particles
 		UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticles, GetRootComponent(), FName(), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true, ENCPoolMethod::AutoRelease, true);
-	}
-}
 
+		// Apply damage
+		HealthComp->ChangeHealth(-1);
 
-void ABlobCharacter::OnPawnSeen(APawn* Pawn)
-{
-	if (Pawn)
-	{
-		if (BBComp->GetValueAsEnum("CurrentBlobState") == (uint8)EBlobStateName::GRAZE)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Blob saw a pawn"));
-			BBComp->SetValueAsObject("TargetPawn", Pawn);
-			BBComp->SetValueAsEnum("CurrentBlobState", (uint8)EBlobStateName::ATTACK);
-		}
+		// Change state
+		ChangeState(EBlobStateName::HIT);
 	}
 }
 
@@ -73,8 +64,37 @@ void ABlobCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* O
 }
 
 
+void ABlobCharacter::OnSight(ACharacter* InstigatorCharacter)
+{
+	if (IsState(EBlobStateName::GRAZE))
+	{
+		BBComp->SetValueAsObject("TargetCharacter", InstigatorCharacter);
+		ChangeState(EBlobStateName::ATTACK);
+	}
+}
+
+
+void ABlobCharacter::ExecuteDeath()
+{
+	UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticles, GetRootComponent(), FName(), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true, ENCPoolMethod::AutoRelease, true);
+	Destroy();
+}
+
+
 void ABlobCharacter::InitializeBlackboard()
 {
+	ChangeState(EBlobStateName::GRAZE);
 	BBComp->SetValueAsVector("GrazeCenter", GetActorLocation());
-	BBComp->SetValueAsEnum("CurrentBlobState", (uint8)EBlobStateName::GRAZE);
+}
+
+
+bool ABlobCharacter::IsState(EBlobStateName InputState)
+{
+	return BBComp->GetValueAsEnum("CurrentBlobState") == (uint8)InputState;
+}
+
+
+void ABlobCharacter::ChangeState(EBlobStateName InputState)
+{
+	BBComp->SetValueAsEnum("CurrentBlobState", (uint8)InputState);
 }

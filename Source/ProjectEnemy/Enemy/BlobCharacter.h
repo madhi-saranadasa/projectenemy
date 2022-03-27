@@ -27,16 +27,30 @@ protected:
 
 	virtual void BeginPlay() override;
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	UNiagaraSystem* HitParticles;
+
+	UPROPERTY(EditDefaultsOnly)
+	UNiagaraSystem* DeathParticles;
+
 public:
 
 	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
 
-	virtual void OnPawnSeen(APawn* Pawn) override;
-
 	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
+
+	virtual void OnSight(ACharacter* InstigatorCharacter);
+
+	void ExecuteDeath();
 
 private:
 
 	void InitializeBlackboard();
+
+	bool IsState(EBlobStateName InputState);
+
+	void ChangeState(EBlobStateName InputState);
 	
 };

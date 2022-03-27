@@ -6,14 +6,19 @@
 #include <Components/CapsuleComponent.h>
 #include <BehaviorTree/BlackboardComponent.h>
 #include <AIController.h>
+#include "EnemyHealthComponent.h"
+#include "EnemySightComponent.h"
 
 
 AEnemyCharacter::AEnemyCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Create Pawn Sensing Component
-	SenseComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("SenseComp"));
+	// Create health component
+	HealthComp = CreateDefaultSubobject<UEnemyHealthComponent>(TEXT("HealthComp"));
+
+	// Create sight component
+	SightComp = CreateDefaultSubobject<UEnemySightComponent>(TEXT("SightComp"));
 }
 
 
@@ -22,14 +27,18 @@ void AEnemyCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	// Add events
-	SenseComp->OnSeePawn.AddDynamic(this, &AEnemyCharacter::OnPawnSeen);
+	HealthComp->OnDeath.AddDynamic(this, &AEnemyCharacter::MarkForDeath);
+	SightComp->OnSight.AddDynamic(this, &AEnemyCharacter::OnSight);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyCharacter::OnCharacterHit);
+
 }
 
 
 void AEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Get reference to blackboard for use during play
 	RegisterBlackboardComponent();
 }
 
@@ -50,15 +59,34 @@ void AEnemyCharacter::RegisterBlackboardComponent()
 }
 
 
-void AEnemyCharacter::OnPawnSeen(APawn* Pawn)
+void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 
 }
 
 
-void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void AEnemyCharacter::MarkForDeath()
+{
+	bMarkedForDeath = true;
+	UE_LOG(LogTemp, Warning, TEXT("Marked for death"));
+}
+
+
+void AEnemyCharacter::OnSight(ACharacter* InstigatorCharacter)
 {
 
+}
+
+
+void AEnemyCharacter::ExecuteDeath()
+{
+
+}
+
+
+bool AEnemyCharacter::GetDeathStatus()
+{
+	return bMarkedForDeath;
 }
 
 

@@ -12,7 +12,6 @@ UPlayerState_Aim::UPlayerState_Aim()
 
 void UPlayerState_Aim::OnStateEnter()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Entered aim state"));
 	OwningCharacter->UpdateMoveCompParameters(100.0f, 1000.0f, false);
 }
 
@@ -34,6 +33,5 @@ void UPlayerState_Aim::StateTick(float DeltaTime)
 
 void UPlayerState_Aim::OnStateExit()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Left aim state"));
 	OwningCharacter->UpdateMoveCompParameters(400.0f, 600.0f, true);
 }
