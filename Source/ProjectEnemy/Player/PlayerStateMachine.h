@@ -80,6 +80,10 @@ public:
 
 	// These variables are the blackboard holding all the state information
 
+	EPlayerStateName PreviousState; // set during ChangeState
+
+	EPlayerStateName NextState; // set during ChangeState, only safe to access during OnStateEnter
+
 	FVector KnockbackVector;
 
 	bool bCanDash;
@@ -88,12 +92,21 @@ public:
 
 	bool bCanAttack;
 
-	bool bAttackMove;
+	bool bAttackLanded;
+
+	bool bChargeReady;
+
+	bool bAiming;
+
 
 	void SetCanDash(bool InputBool);
 
 	void SetCanBeHit(bool InputBool);
 
 	void SetCanAttack(bool InputBool);
+
+	void SetChargeReady(bool InputBool);
+
+	void SetAiming(bool InputBool);
 
 };

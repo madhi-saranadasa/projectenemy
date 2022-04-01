@@ -24,5 +24,5 @@ void UPlayerState_Default::StateTick(float DeltaTime)
 
 void UPlayerState_Default::OnStateExit()
 {
-
+	Super::OnStateExit();
 }

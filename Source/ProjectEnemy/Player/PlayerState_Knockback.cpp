@@ -47,6 +47,7 @@ void UPlayerState_Knockback::OnKnockbackEnd()
 
 void UPlayerState_Knockback::OnStateExit()
 {
+	Super::OnStateExit();
 	// Allow movement after exiting this state
 	OwningCharacter->GetController()->SetIgnoreMoveInput(false);
 }

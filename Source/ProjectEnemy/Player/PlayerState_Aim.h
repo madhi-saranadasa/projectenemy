@@ -24,4 +24,16 @@ public:
 
 	virtual void OnStateExit() override;
 
+private:
+
+	UPROPERTY(EditDefaultsOnly, Category = "State")
+	float ChargeDuration = 1.0f;
+
+private:
+
+	UFUNCTION()
+	void OnChargeReady();
+
+	FTimerHandle ChargeTimerHandle;
+
 };

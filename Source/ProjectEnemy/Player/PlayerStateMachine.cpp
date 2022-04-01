@@ -55,6 +55,14 @@ void UPlayerStateMachine::StateTick(float DeltaTime)
 
 void UPlayerStateMachine::ChangeState(EPlayerStateName InputStateName)
 {
+	// Store what the next and previous states
+	if (CurrentState)
+	{
+		PreviousState = GetCurrentState();
+	}
+	
+	NextState = InputStateName;
+
 	// Exit current state
 	if (CurrentState)
 	{
@@ -110,10 +118,22 @@ void UPlayerStateMachine::SetCanAttack(bool InputBool)
 	// Attack check can be modified by states or the player character
 	if (bCanAttack == InputBool)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to set bCanBeHit to its existing value..."));
+		UE_LOG(LogTemp, Warning, TEXT("Trying to set bCanAttack to its existing value..."));
 	}
 
 	bCanAttack = InputBool;
+}
+
+
+void UPlayerStateMachine::SetChargeReady(bool InputBool)
+{
+	bChargeReady = InputBool;
+}
+
+
+void UPlayerStateMachine::SetAiming(bool InputBool)
+{
+	bAiming = InputBool;
 }
 
 

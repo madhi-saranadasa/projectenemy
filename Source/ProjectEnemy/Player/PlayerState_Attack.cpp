@@ -18,7 +18,7 @@ void UPlayerState_Attack::OnStateEnter()
 {
 	// Update state machine
 	StateMachine->SetCanAttack(false);
-	StateMachine->bAttackMove = true;
+	StateMachine->bAttackLanded = true;
 
 	// Update player character: limit input, store Attack vector, start animation
 	OwningCharacter->GetController()->SetIgnoreMoveInput(true);
@@ -41,7 +41,7 @@ void UPlayerState_Attack::StateTick(float DeltaTime)
 	float AlphaPoint = AttackCurve->GetFloatValue(GetWorld()->GetTimerManager().GetTimerElapsed(AttackTimerHandle) / AttackDuration);
 
 	// Movement
-	if (StateMachine->bAttackMove)
+	if (StateMachine->bAttackLanded)
 	{
 
 		OwningCharacter->GetCharacterMovement()->MoveSmooth(AttackVector * AttackSpeed * AlphaPoint, DeltaTime);
@@ -66,6 +66,7 @@ void UPlayerState_Attack::OnAttackEnd()
 
 void UPlayerState_Attack::OnStateExit()
 {
+	Super::OnStateExit();
 	// Allow movement after exiting this state
 	OwningCharacter->GetController()->SetIgnoreMoveInput(false);
 }

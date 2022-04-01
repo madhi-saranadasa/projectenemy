@@ -12,7 +12,20 @@ UPlayerState_Aim::UPlayerState_Aim()
 
 void UPlayerState_Aim::OnStateEnter()
 {
+	// Update movement parameters
 	OwningCharacter->UpdateMoveCompParameters(100.0f, 1000.0f, false);
+	
+	// If timer is active or a charge is ready, just keep going
+	if (GetWorld()->GetTimerManager().IsTimerActive(ChargeTimerHandle) | StateMachine->bChargeReady)
+	{
+		return;
+	}
+
+	// If a timer is not going and there is no charge ready, then start charge sequence
+	// Start timer
+	GetWorld()->GetTimerManager().SetTimer(ChargeTimerHandle, this, &UPlayerState_Aim::OnChargeReady, ChargeDuration, false);
+	// Set bool to false
+	StateMachine->SetChargeReady(false);
 }
 
 
@@ -33,5 +46,21 @@ void UPlayerState_Aim::StateTick(float DeltaTime)
 
 void UPlayerState_Aim::OnStateExit()
 {
+	Super::OnStateExit();
+
+	// Unless we are going into dash, clear the timer and clear the charge
+	if (StateMachine->NextState != EPlayerStateName::DASH)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ChargeTimerHandle);
+		StateMachine->SetChargeReady(false);
+	}
+
 	OwningCharacter->UpdateMoveCompParameters(400.0f, 600.0f, true);
+}
+
+
+void UPlayerState_Aim::OnChargeReady()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Attack ready!"));
+	StateMachine->SetChargeReady(true);
 }

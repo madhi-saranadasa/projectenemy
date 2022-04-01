@@ -43,12 +43,21 @@ void UPlayerState_Dash::StateTick(float DeltaTime)
 void UPlayerState_Dash::OnDashEnd()
 {
 	// Change state after timer expires
-	StateMachine->ChangeState(EPlayerStateName::DEFAULT);
+	// Check if character is holding down aim button when exiting dash state
+	if (StateMachine->bAiming)
+	{
+		StateMachine->ChangeState(EPlayerStateName::AIM);
+	}
+	else
+	{
+		StateMachine->ChangeState(EPlayerStateName::DEFAULT);
+	}
 }
 
 
 void UPlayerState_Dash::OnStateExit()
 {
+	Super::OnStateExit();
 	// Allow movement after exiting this state
 	OwningCharacter->GetController()->SetIgnoreMoveInput(false);
 }

@@ -128,13 +128,12 @@ void APlayerCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor*
 
 		}
 	}
-	
 }
 
 
 void APlayerCharacter::OnAttackSuccess()
 {
-	StateMachine->bAttackMove = false;
+	StateMachine->bAttackLanded = false;
 }
 
 
@@ -143,7 +142,11 @@ void APlayerCharacter::OnShiftPress()
 	// Go to dash state if permitted
 	if (StateMachine->bCanDash)
 	{
-		if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT || StateMachine->GetCurrentState() == EPlayerStateName::AIM)
+		if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT)
+		{
+			StateMachine->ChangeState(EPlayerStateName::DASH);
+		}
+		else if (StateMachine->GetCurrentState() == EPlayerStateName::AIM)
 		{
 			StateMachine->ChangeState(EPlayerStateName::DASH);
 		}
@@ -153,6 +156,9 @@ void APlayerCharacter::OnShiftPress()
 
 void APlayerCharacter::OnAimStart()
 {
+	// Log aiming
+	StateMachine->SetAiming(true);
+
 	// Go to aim state if permitted
 	if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT)
 	{
@@ -163,10 +169,21 @@ void APlayerCharacter::OnAimStart()
 
 void APlayerCharacter::OnAimEnd()
 {
+	// Log aiming
+	StateMachine->SetAiming(false);
+
 	// Exit aim state if currently in aim state
 	if (StateMachine->GetCurrentState() == EPlayerStateName::AIM)
 	{
-		StateMachine->ChangeState(EPlayerStateName::ATTACK);
+		if (StateMachine->bChargeReady)
+		{
+			StateMachine->ChangeState(EPlayerStateName::ATTACK);
+		}
+		else
+		{
+			StateMachine->ChangeState(EPlayerStateName::DEFAULT);
+		}
+		
 	}
 }
 
