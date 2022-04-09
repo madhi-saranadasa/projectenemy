@@ -44,4 +44,6 @@ private:
 	UFUNCTION()
 	void SightCheck();
 
+	void SphereTraceMethod();
+
 };

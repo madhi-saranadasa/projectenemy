@@ -22,6 +22,11 @@ void UEnemySightComponent::BeginPlay()
 
 void UEnemySightComponent::SightCheck()
 {
+	SphereTraceMethod();
+}
+
+void UEnemySightComponent::SphereTraceMethod()
+{
 	// Find start and end
 	FVector SightStart = GetOwner()->GetActorLocation();
 	FVector SightEnd = SightStart + GetOwner()->GetActorForwardVector() * SightOffset.X + GetOwner()->GetActorRightVector() * SightOffset.Y;
@@ -37,7 +42,7 @@ void UEnemySightComponent::SightCheck()
 
 	// Do the trace
 	bool bAnyHits = UKismetSystemLibrary::SphereTraceMultiForObjects(this, SightStart, SightEnd, SightRadius,
-		ObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, HitArray, true, FLinearColor::Gray, FLinearColor::Red, 1.0f);
+		ObjectTypes, false, ActorsToIgnore, EDrawDebugTrace::None, HitArray, true, FLinearColor::Gray, FLinearColor::Red, 0.1f);
 
 	if (bAnyHits)
 	{
@@ -53,5 +58,4 @@ void UEnemySightComponent::SightCheck()
 			}
 		}
 	}
-
 }

@@ -10,6 +10,7 @@
 class UPlayerStateMachine;
 class UAttackVolume;
 class UAnimMontage;
+class UNiagaraComponent;
 
 UCLASS()
 class PROJECTENEMY_API APlayerCharacter : public ACharacter
@@ -51,7 +52,7 @@ public:
 
 	void OnAttackSuccess();
 
-	void OnShiftPress();
+	void OnDashPress();
 
 	void OnAimStart();
 
@@ -60,6 +61,14 @@ public:
 	void UpdateMoveCompParameters(float NewSpeed, float NewAccerlation, bool bNewOrientToMovement);
 
 	FVector GetMousePosition();
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void ToggleChargeParticle(bool InputBool);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void PlaySwordSlash();
 
 private:
 

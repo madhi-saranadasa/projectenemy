@@ -30,7 +30,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UEnemySightComponent* SightComp;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	UBlackboardComponent* BBComp;
 
 protected:

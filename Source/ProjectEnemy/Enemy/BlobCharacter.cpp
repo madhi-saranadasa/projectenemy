@@ -60,7 +60,20 @@ void ABlobCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector Hi
 
 void ABlobCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
+	// If we hit something during the attack, then stop the attack
+	// Using dot product to check if the collision is in front of us or behind us
+	// Stop attack if we hit something in front of us
+	if (IsState(EBlobStateName::ATTACK))
+	{
+		FVector DirectionVector = OtherActor->GetActorLocation() - GetActorLocation();
+		DirectionVector.Normalize();
+		float FrontJudgement = FVector::DotProduct(GetActorLocation(), DirectionVector);
 
+		if (FrontJudgement >= 0)
+		{
+			ChangeState(EBlobStateName::GRAZE);
+		}
+	}
 }
 
 
@@ -76,7 +89,8 @@ void ABlobCharacter::OnSight(ACharacter* InstigatorCharacter)
 
 void ABlobCharacter::ExecuteDeath()
 {
-	UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticles, GetRootComponent(), FName(), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true, ENCPoolMethod::AutoRelease, true);
+	//UNiagaraFunctionLibrary::SpawnSystemAttached(HitParticles, GetRootComponent(), FName(), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true, ENCPoolMethod::AutoRelease, true);
+	StartDeathEffect();
 	Destroy();
 }
 

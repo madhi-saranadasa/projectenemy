@@ -32,9 +32,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	UNiagaraSystem* HitParticles;
 
-	UPROPERTY(EditDefaultsOnly)
-	UNiagaraSystem* DeathParticles;
-
 public:
 
 	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
@@ -44,6 +41,11 @@ public:
 	virtual void OnSight(ACharacter* InstigatorCharacter);
 
 	void ExecuteDeath();
+
+public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void StartDeathEffect();
 
 private:
 

@@ -52,9 +52,15 @@ void AEnemyCharacter::Tick(float DeltaTime)
 void AEnemyCharacter::RegisterBlackboardComponent()
 {
 	AAIController* EnemyController = Cast<AAIController>(GetController());
+
 	if (EnemyController)
 	{
 		BBComp = EnemyController->GetBlackboardComponent();
+		
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Getting enemy controller failed"));
 	}
 }
 
@@ -68,7 +74,6 @@ void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* 
 void AEnemyCharacter::MarkForDeath()
 {
 	bMarkedForDeath = true;
-	UE_LOG(LogTemp, Warning, TEXT("Marked for death"));
 }
 
 

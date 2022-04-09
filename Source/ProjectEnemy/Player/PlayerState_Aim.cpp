@@ -61,6 +61,5 @@ void UPlayerState_Aim::OnStateExit()
 
 void UPlayerState_Aim::OnChargeReady()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Attack ready!"));
 	StateMachine->SetChargeReady(true);
 }

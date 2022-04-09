@@ -4,7 +4,7 @@
 #include "PlayerStateMachine.h"
 #include "PlayerState_Base.h"
 #include "PlayerCharacter.h"
-
+#include <NiagaraComponent.h>
 
 UPlayerStateMachine::UPlayerStateMachine()
 {
@@ -128,6 +128,17 @@ void UPlayerStateMachine::SetCanAttack(bool InputBool)
 void UPlayerStateMachine::SetChargeReady(bool InputBool)
 {
 	bChargeReady = InputBool;
+
+	if (bChargeReady)
+	{
+		OwningPC->ToggleChargeParticle(true);
+		//OwningPC->ChargeParticles->Activate();
+	}
+	else
+	{
+		OwningPC->ToggleChargeParticle(false);
+		//OwningPC->ChargeParticles->Deactivate();
+	}
 }
 
 

@@ -30,7 +30,7 @@ void AMyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	InputComponent->BindAction("Spacebar", IE_Pressed, this, &AMyPlayerController::OnSpaceBarPress);
+	//InputComponent->BindAction("Spacebar", IE_Pressed, this, &AMyPlayerController::OnSpaceBarPress);
 }
 
 

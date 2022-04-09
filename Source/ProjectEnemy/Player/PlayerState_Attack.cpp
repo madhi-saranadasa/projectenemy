@@ -25,8 +25,8 @@ void UPlayerState_Attack::OnStateEnter()
 	AttackVector = OwningCharacter->GetActorForwardVector();
 	OwningCharacter->StartMontage(AttackAnim);
 
-	//
-	UNiagaraFunctionLibrary::SpawnSystemAttached(SlashParticles, OwningCharacter->GetRootComponent(), FName(), FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::SnapToTarget, true, true, ENCPoolMethod::AutoRelease, true);
+	// Particle Effects
+	OwningCharacter->PlaySwordSlash();
 
 	// Start timers
 	GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UPlayerState_Attack::OnAttackEnd, AttackDuration, false);
@@ -40,7 +40,7 @@ void UPlayerState_Attack::StateTick(float DeltaTime)
 
 	float AlphaPoint = AttackCurve->GetFloatValue(GetWorld()->GetTimerManager().GetTimerElapsed(AttackTimerHandle) / AttackDuration);
 
-	// Movement
+	// Movement - option to change behavior if the attack landed
 	if (StateMachine->bAttackLanded)
 	{
 

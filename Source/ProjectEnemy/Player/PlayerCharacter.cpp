@@ -11,6 +11,7 @@
 #include <Kismet/GameplayStatics.h>
 #include <DrawDebugHelpers.h>
 #include "AttackVolume.h"
+#include <NiagaraComponent.h>
 
 
 APlayerCharacter::APlayerCharacter()
@@ -26,6 +27,7 @@ APlayerCharacter::APlayerCharacter()
 
 	// Create attack volume component
 	AttackVolume = CreateDefaultSubobject<UAttackVolume>(TEXT("AttackVolume"));
+
 
 	// Rotation settings
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -45,7 +47,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// Inputs - only default state permits user input
 	PlayerInputComponent->BindAxis("Forward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Right", this, &APlayerCharacter::MoveRight);
-	PlayerInputComponent->BindAction("Shift", IE_Pressed, this, &APlayerCharacter::OnShiftPress);
+	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerCharacter::OnDashPress);
 	PlayerInputComponent->BindAction("AimToggle", IE_Pressed, this, &APlayerCharacter::OnAimStart);
 	PlayerInputComponent->BindAction("AimToggle", IE_Released, this, &APlayerCharacter::OnAimEnd);
 }
@@ -116,16 +118,18 @@ void APlayerCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor*
 
 	if (HitEnemy)
 	{
-		if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT && StateMachine->bCanBeHit)
+		if (StateMachine->bCanBeHit)
 		{
-			// Calculate the knockback vector and store in the state machine blackboard
+			if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT || StateMachine->GetCurrentState() == EPlayerStateName::AIM)
+			{
+				// Calculate the knockback vector and store in the state machine blackboard
 
-			FVector NewVector = GetActorLocation() - OtherActor->GetActorLocation();
-			NewVector = NewVector.GetUnsafeNormal2D();
+				FVector NewVector = GetActorLocation() - OtherActor->GetActorLocation();
+				NewVector = NewVector.GetUnsafeNormal2D();
 
-			StateMachine->KnockbackVector = NewVector;
-			StateMachine->ChangeState(EPlayerStateName::KNOCKBACK);
-
+				StateMachine->KnockbackVector = NewVector;
+				StateMachine->ChangeState(EPlayerStateName::KNOCKBACK);
+			}
 		}
 	}
 }
@@ -137,7 +141,7 @@ void APlayerCharacter::OnAttackSuccess()
 }
 
 
-void APlayerCharacter::OnShiftPress()
+void APlayerCharacter::OnDashPress()
 {
 	// Go to dash state if permitted
 	if (StateMachine->bCanDash)
