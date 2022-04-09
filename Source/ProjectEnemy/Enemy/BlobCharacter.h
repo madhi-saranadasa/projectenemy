@@ -44,8 +44,11 @@ public:
 
 public:
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Effects")
 	void StartDeathEffect();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Effects")
+	void StartHitEffect();
 
 private:
 

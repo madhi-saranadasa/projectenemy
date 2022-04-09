@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Game Rules")
 	TSubclassOf<AEnemyCharacter> EnemyAsset;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Game Rules")
+	bool bActiveSpawing;
+
 	FTimerHandle TimerHandle_SpawnCheck;
 
 protected:

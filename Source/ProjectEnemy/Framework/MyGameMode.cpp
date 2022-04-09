@@ -10,6 +10,7 @@
 AMyGameMode::AMyGameMode()
 {
 	SpawnCheckInterval = 2.0f;
+	bActiveSpawing = false;
 }
 
 
@@ -18,7 +19,10 @@ void AMyGameMode::StartPlay()
 	Super::StartPlay();
 
 	// Set up timer to perform the spawn check
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnCheck, this, &AMyGameMode::PerformSpawnCheck, SpawnCheckInterval, true);
+	if (bActiveSpawing)
+	{
+		GetWorldTimerManager().SetTimer(TimerHandle_SpawnCheck, this, &AMyGameMode::PerformSpawnCheck, SpawnCheckInterval, true);
+	}
 }
 
 

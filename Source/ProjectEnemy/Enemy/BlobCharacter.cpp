@@ -52,6 +52,9 @@ void ABlobCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector Hi
 		// Apply damage
 		HealthComp->ChangeHealth(-1);
 
+		// Screen Shake
+		StartHitEffect();
+
 		// Change state
 		ChangeState(EBlobStateName::HIT);
 	}
