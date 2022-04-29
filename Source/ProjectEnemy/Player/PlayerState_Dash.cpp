@@ -16,7 +16,7 @@ UPlayerState_Dash::UPlayerState_Dash()
 void UPlayerState_Dash::OnStateEnter()
 {
 	// Update state machine
-	StateMachine->SetCanDash(false);
+	StateMachine->bCanDash = false;
 
 	// Update player character: limit input, store dash vector, start animation
 	OwningCharacter->GetController()->SetIgnoreMoveInput(true);
@@ -66,5 +66,5 @@ void UPlayerState_Dash::OnStateExit()
 void UPlayerState_Dash::OnDashCooldownEnd()
 {
 	// Set dash check after second time expires
-	StateMachine->SetCanDash(true);
+	StateMachine->bCanDash = true;
 }

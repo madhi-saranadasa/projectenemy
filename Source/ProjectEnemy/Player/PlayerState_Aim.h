@@ -26,14 +26,22 @@ public:
 
 private:
 
+
 	UPROPERTY(EditDefaultsOnly, Category = "State")
-	float ChargeDuration = 1.0f;
+	float PrimaryDuration = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "State")
+	float SecondaryDuration = 2.0f;
 
 private:
 
+	FTimerHandle PrimaryTimerHandle;
+
+	FTimerHandle SecondaryTimerHandle;
+
 	UFUNCTION()
-	void OnChargeReady();
+	void PrimaryChargeReady();
 
-	FTimerHandle ChargeTimerHandle;
-
+	UFUNCTION()
+	void SecondaryChargeReady();
 };

@@ -17,7 +17,7 @@ UPlayerState_Attack::UPlayerState_Attack()
 void UPlayerState_Attack::OnStateEnter()
 {
 	// Update state machine
-	StateMachine->SetCanAttack(false);
+	StateMachine->bCanAttack = false;
 	StateMachine->bAttackLanded = true;
 
 	// Update player character: limit input, store Attack vector, start animation
@@ -26,7 +26,15 @@ void UPlayerState_Attack::OnStateEnter()
 	OwningCharacter->StartMontage(AttackAnim);
 
 	// Particle Effects
-	OwningCharacter->PlaySwordSlash();
+	if(StateMachine->bChargeSecondary)
+	{
+		OwningCharacter->PlaySecondaryAttack();
+	}
+	else if (StateMachine->bChargePrimary)
+	{
+		OwningCharacter->PlayParticleAttack();
+	}
+	
 
 	// Start timers
 	GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UPlayerState_Attack::OnAttackEnd, AttackDuration, false);
@@ -44,11 +52,11 @@ void UPlayerState_Attack::StateTick(float DeltaTime)
 	if (StateMachine->bAttackLanded)
 	{
 
-		OwningCharacter->GetCharacterMovement()->MoveSmooth(AttackVector * AttackSpeed * AlphaPoint, DeltaTime);
+		OwningCharacter->GetCharacterMovement()->MoveSmooth(AttackVector * AttackSpeed * 1.0f * AlphaPoint, DeltaTime);
 	}
 	else
 	{
-		OwningCharacter->GetCharacterMovement()->MoveSmooth(AttackVector * AttackSpeed * 1.0f * AlphaPoint, DeltaTime);
+		OwningCharacter->GetCharacterMovement()->MoveSmooth(AttackVector * AttackSpeed * 0.75f * AlphaPoint, DeltaTime);
 	}
 
 	// Activate attack volume
@@ -75,5 +83,5 @@ void UPlayerState_Attack::OnStateExit()
 void UPlayerState_Attack::OnAttackCooldownEnd()
 {
 	// Set Attack check after second time expires
-	StateMachine->SetCanAttack(true);
+	StateMachine->bCanAttack = true;
 }

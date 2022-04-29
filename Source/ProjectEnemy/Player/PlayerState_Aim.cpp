@@ -12,20 +12,24 @@ UPlayerState_Aim::UPlayerState_Aim()
 
 void UPlayerState_Aim::OnStateEnter()
 {
+	// Play charging particles
+	OwningCharacter->ToggleChargeParticle(true);
+
 	// Update movement parameters
-	OwningCharacter->UpdateMoveCompParameters(100.0f, 1000.0f, false);
-	
-	// If timer is active or a charge is ready, just keep going
-	if (GetWorld()->GetTimerManager().IsTimerActive(ChargeTimerHandle) | StateMachine->bChargeReady)
+	OwningCharacter->UpdateMoveCompParameters(200.0f, 1000.0f, false);
+
+	// If previous state was dash, then keep going with timer/charge reset
+	if (StateMachine->PreviousState == EPlayerStateName::DASH)
 	{
 		return;
 	}
 
-	// If a timer is not going and there is no charge ready, then start charge sequence
-	// Start timer
-	GetWorld()->GetTimerManager().SetTimer(ChargeTimerHandle, this, &UPlayerState_Aim::OnChargeReady, ChargeDuration, false);
-	// Set bool to false
-	StateMachine->SetChargeReady(false);
+	// Set both timers
+	GetWorld()->GetTimerManager().SetTimer(PrimaryTimerHandle, this, &UPlayerState_Aim::PrimaryChargeReady, PrimaryDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(SecondaryTimerHandle, this, &UPlayerState_Aim::SecondaryChargeReady, SecondaryDuration, false);
+	// Clear charges
+	StateMachine->bChargePrimary = false;
+	StateMachine->bChargeSecondary = false;
 }
 
 
@@ -48,18 +52,30 @@ void UPlayerState_Aim::OnStateExit()
 {
 	Super::OnStateExit();
 
-	// Unless we are going into dash, clear the timer and clear the charge
+	// Stop charging particles
+	OwningCharacter->ToggleChargeParticle(false);
+
+	// Unless we are going into dash, clear timers and clear charges
 	if (StateMachine->NextState != EPlayerStateName::DASH)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ChargeTimerHandle);
-		StateMachine->SetChargeReady(false);
-	}
+		GetWorld()->GetTimerManager().ClearTimer(PrimaryTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(SecondaryTimerHandle);
 
-	OwningCharacter->UpdateMoveCompParameters(400.0f, 600.0f, true);
+		//StateMachine->bChargePrimary = false;
+		//StateMachine->bChargeSecondary = false;
+	}
 }
 
 
-void UPlayerState_Aim::OnChargeReady()
+void UPlayerState_Aim::PrimaryChargeReady()
 {
-	StateMachine->SetChargeReady(true);
+	StateMachine->bChargePrimary = true;
+	OwningCharacter->PlayPrimaryFlash();
+}
+
+
+void UPlayerState_Aim::SecondaryChargeReady()
+{
+	StateMachine->bChargeSecondary = true;
+	OwningCharacter->PlaySecondaryFlash();
 }

@@ -89,62 +89,15 @@ EPlayerStateName UPlayerStateMachine::GetCurrentState()
 }
 
 
-void UPlayerStateMachine::SetCanDash(bool InputBool)
-{
-	// Dash check can be modified by states or the player character
-	if (bCanDash == InputBool)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to set bCanDash to its existing value..."));
-	}
-
-	bCanDash = InputBool;
-}
-
-
-void UPlayerStateMachine::SetCanBeHit(bool InputBool)
-{
-	// Knockback check can be modified by states or the player character
-	if (bCanBeHit == InputBool)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to set bCanBeHit to its existing value..."));
-	}
-
-	bCanBeHit = InputBool;
-}
-
-
-void UPlayerStateMachine::SetCanAttack(bool InputBool)
-{
-	// Attack check can be modified by states or the player character
-	if (bCanAttack == InputBool)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Trying to set bCanAttack to its existing value..."));
-	}
-
-	bCanAttack = InputBool;
-}
-
-
-void UPlayerStateMachine::SetChargeReady(bool InputBool)
-{
-	bChargeReady = InputBool;
-
-	if (bChargeReady)
-	{
-		OwningPC->ToggleChargeParticle(true);
-		//OwningPC->ChargeParticles->Activate();
-	}
-	else
-	{
-		OwningPC->ToggleChargeParticle(false);
-		//OwningPC->ChargeParticles->Deactivate();
-	}
-}
-
-
 void UPlayerStateMachine::SetAiming(bool InputBool)
 {
 	bAiming = InputBool;
+}
+
+
+void UPlayerStateMachine::SetJustCharged(bool InputBool)
+{
+	bJustCharged = InputBool;
 }
 
 

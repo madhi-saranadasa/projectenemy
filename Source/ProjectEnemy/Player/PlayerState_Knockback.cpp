@@ -16,7 +16,7 @@ void UPlayerState_Knockback::OnStateEnter()
 {
 	// Knockback vector should be updated on the blackboard before this
 	// Update state machine
-	StateMachine->SetCanBeHit(false);
+	StateMachine->bCanBeHit = false;
 
 	// Update player character: limit input, start animation
 	OwningCharacter->GetController()->SetIgnoreMoveInput(true);
@@ -56,5 +56,5 @@ void UPlayerState_Knockback::OnStateExit()
 void UPlayerState_Knockback::OnKnockbackCooldownEnd()
 {
 	// Set knockback check after second time expires
-	StateMachine->SetCanBeHit(true);
+	StateMachine->bCanBeHit = true;
 }

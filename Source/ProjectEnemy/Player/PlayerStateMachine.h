@@ -86,27 +86,24 @@ public:
 
 	FVector KnockbackVector;
 
-	bool bCanDash;
+	bool bCanDash; // Monitors dash cooldown
 
-	bool bCanBeHit;
+	bool bCanBeHit; // Monitors hit cooldown to prevent stun locking
 
-	bool bCanAttack;
+	bool bCanAttack; // Monitors attack cooldown
 
 	bool bAttackLanded;
 
-	bool bChargeReady;
-
 	bool bAiming;
 
-
-	void SetCanDash(bool InputBool);
-
-	void SetCanBeHit(bool InputBool);
-
-	void SetCanAttack(bool InputBool);
-
-	void SetChargeReady(bool InputBool);
+	bool bJustCharged;
 
 	void SetAiming(bool InputBool);
+
+	void SetJustCharged(bool InputBool);
+
+	bool bChargePrimary;
+
+	bool bChargeSecondary;
 
 };

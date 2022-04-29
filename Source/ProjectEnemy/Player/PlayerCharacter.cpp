@@ -68,8 +68,8 @@ void APlayerCharacter::BeginPlay()
 
 	// Initializing the state machine
 	StateMachine->ChangeState(EPlayerStateName::DEFAULT);
-	StateMachine->SetCanBeHit(true);
-	StateMachine->SetCanDash(true);
+	StateMachine->bCanDash = true;
+	StateMachine->bCanBeHit = true;
 }
 
 
@@ -179,7 +179,7 @@ void APlayerCharacter::OnAimEnd()
 	// Exit aim state if currently in aim state
 	if (StateMachine->GetCurrentState() == EPlayerStateName::AIM)
 	{
-		if (StateMachine->bChargeReady)
+		if (StateMachine->bChargePrimary | StateMachine->bChargeSecondary)
 		{
 			StateMachine->ChangeState(EPlayerStateName::ATTACK);
 		}

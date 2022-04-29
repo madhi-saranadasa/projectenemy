@@ -12,7 +12,7 @@ UPlayerState_Default::UPlayerState_Default()
 
 void UPlayerState_Default::OnStateEnter()
 {
-
+	OwningCharacter->UpdateMoveCompParameters(400.0f, 1000.0f, true);
 }
 
 

@@ -68,7 +68,16 @@ public:
 	void ToggleChargeParticle(bool InputBool);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
-	void PlaySwordSlash();
+	void PlayParticleAttack();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void PlaySecondaryAttack();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void PlayPrimaryFlash();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void PlaySecondaryFlash();
 
 private:
 
