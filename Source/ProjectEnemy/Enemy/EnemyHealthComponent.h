@@ -24,7 +24,7 @@ protected:
 public:
 	/** Delegate to execute when we see a Pawn. */
 	UPROPERTY(BlueprintAssignable)
-	FEnemyDeathDelegate OnDeath;
+	FEnemyDeathDelegate HealthReachedZero;
 
 public:	
 

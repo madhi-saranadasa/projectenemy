@@ -14,16 +14,36 @@ AChunkCharacter::AChunkCharacter()
 	GetCapsuleComponent()->SetCapsuleHalfHeight(40.0f);
 	GetCapsuleComponent()->SetCapsuleRadius(30.0f);
 
-	// Rotation settings
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->bUseControllerDesiredRotation = false;
-	bUseControllerRotationYaw = false;
-
-	// Movement settings
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 360.0f);
-	GetCharacterMovement()->MaxAcceleration = 200.0f;
-	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
-
 	// Health settings
 	HealthComp->MaxHealth = 2;
 }
+
+void AChunkCharacter::SightResponse(ACharacter* InstigatorCharacter)
+{
+	if (IsState(EEnemyStateName::GRAZE))
+	{
+		EnemyBlackboard->SetValueAsObject("TargetCharacter", InstigatorCharacter);
+		ChangeState(EEnemyStateName::PURSUIT);
+	}
+}
+
+void AChunkCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+{
+	if (!IsState(EEnemyStateName::HIT))
+	{
+		// Store hit direction
+		FVector HitDirection = GetActorLocation() - InstigatorPawn->GetActorLocation();
+		HitDirection = HitDirection.GetUnsafeNormal2D();
+		EnemyBlackboard->SetValueAsVector("HitDirection", HitDirection);
+
+		// Apply damage
+		HealthComp->ChangeHealth(-1);
+
+		// Hit Effect - Particles + Screen shake
+		StartHitEffect();
+
+		// Change state
+		ChangeState(EEnemyStateName::HIT);
+	}
+}
+

@@ -2,6 +2,7 @@
 
 
 #include "EnemyCharacter.h"
+#include <GameFramework/CharacterMovementComponent.h>
 #include <Perception/PawnSensingComponent.h>
 #include <Components/CapsuleComponent.h>
 #include <BehaviorTree/BlackboardComponent.h>
@@ -19,6 +20,29 @@ AEnemyCharacter::AEnemyCharacter()
 
 	// Create sight component
 	SightComp = CreateDefaultSubobject<UEnemySightComponent>(TEXT("SightComp"));
+
+	// Rotation settings
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	bUseControllerRotationYaw = false;
+
+	// Default movement settings
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);
+	GetCharacterMovement()->MaxAcceleration = 400.0f;
+	GetCharacterMovement()->MaxWalkSpeed = 125.0f;
+
+	// RVO
+	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
+	
+	// Collision Profile
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+
+	// Disable camera collision on mesh
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 
@@ -26,9 +50,9 @@ void AEnemyCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	// Add events
-	HealthComp->OnDeath.AddDynamic(this, &AEnemyCharacter::MarkForDeath);
-	SightComp->OnSight.AddDynamic(this, &AEnemyCharacter::OnSight);
+	// Hook up events
+	HealthComp->HealthReachedZero.AddDynamic(this, &AEnemyCharacter::MarkForDeath);
+	SightComp->SightResponse.AddDynamic(this, &AEnemyCharacter::SightResponse);
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyCharacter::OnCharacterHit);
 
 }
@@ -40,6 +64,9 @@ void AEnemyCharacter::BeginPlay()
 
 	// Get reference to blackboard for use during play
 	RegisterBlackboardComponent();
+
+	// Initialize blackboard with starting data
+	InitializeBlackboard();
 }
 
 
@@ -55,7 +82,7 @@ void AEnemyCharacter::RegisterBlackboardComponent()
 
 	if (EnemyController)
 	{
-		BBComp = EnemyController->GetBlackboardComponent();
+		EnemyBlackboard = EnemyController->GetBlackboardComponent();
 		
 	}
 	else
@@ -65,7 +92,38 @@ void AEnemyCharacter::RegisterBlackboardComponent()
 }
 
 
+void AEnemyCharacter::InitializeBlackboard()
+{
+	ChangeState(EEnemyStateName::GRAZE);
+	EnemyBlackboard->SetValueAsVector("GrazeCenter", GetActorLocation());
+}
+
+
+bool AEnemyCharacter::IsState(EEnemyStateName InputState)
+{
+	return EnemyBlackboard->GetValueAsEnum("CurrentEnemyState") == (uint8)InputState;
+}
+
+
+void AEnemyCharacter::ChangeState(EEnemyStateName InputState)
+{
+	EnemyBlackboard->SetValueAsEnum("CurrentEnemyState", (uint8)InputState);
+}
+
+
+void AEnemyCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+{
+
+}
+
+
 void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+
+}
+
+
+void AEnemyCharacter::SightResponse(ACharacter* InstigatorCharacter)
 {
 
 }
@@ -74,12 +132,6 @@ void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* 
 void AEnemyCharacter::MarkForDeath()
 {
 	bMarkedForDeath = true;
-}
-
-
-void AEnemyCharacter::OnSight(ACharacter* InstigatorCharacter)
-{
-
 }
 
 
@@ -92,10 +144,4 @@ void AEnemyCharacter::ExecuteDeath()
 bool AEnemyCharacter::GetDeathStatus()
 {
 	return bMarkedForDeath;
-}
-
-
-void AEnemyCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
-{
-
 }

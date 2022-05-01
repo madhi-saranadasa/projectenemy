@@ -9,6 +9,11 @@
 UEnemySightComponent::UEnemySightComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	// Default sight settings
+	SightInterval = 0.1f;
+	SightRadius = 200.0f;
+	SightOffset = FVector(100.0f, 0.0f, 0.0f);
 }
 
 
@@ -54,7 +59,7 @@ void UEnemySightComponent::SphereTraceMethod()
 
 			if (PlayerCharacter)
 			{
-				OnSight.Broadcast(PlayerCharacter);
+				SightResponse.Broadcast(PlayerCharacter);
 			}
 		}
 	}

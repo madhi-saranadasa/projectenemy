@@ -24,7 +24,7 @@ protected:
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FSightDelegate OnSight;
+	FSightDelegate SightResponse;
 
 	FTimerHandle SightIntervalHandle;
 

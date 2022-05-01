@@ -26,6 +26,6 @@ void UEnemyHealthComponent::ChangeHealth(int32 HealthDelta)
 	// Test if health has reached zero
 	if (CurrentHealth == 0)
 	{
-		OnDeath.Broadcast();
+		HealthReachedZero.Broadcast();
 	}
 }

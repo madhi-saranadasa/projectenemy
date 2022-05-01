@@ -6,13 +6,6 @@
 #include "EnemyCharacter.h"
 #include "BlobCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class EBlobStateName : uint8 {
-	GRAZE		UMETA(DisplayName = "Graze"),
-	ATTACK		UMETA(DisplayName = "Attack"),
-	HIT			UMETA(DisplayName = "Hit")
-};
-
 
 UCLASS()
 class PROJECTENEMY_API ABlobCharacter : public AEnemyCharacter
@@ -23,39 +16,14 @@ public:
 
 	ABlobCharacter();
 
-protected:
-
-	virtual void BeginPlay() override;
-
-protected:
-
-	UPROPERTY(EditDefaultsOnly)
-	UNiagaraSystem* HitParticles;
-
 public:
 
 	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
 
 	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
 
-	virtual void OnSight(ACharacter* InstigatorCharacter);
+	virtual void SightResponse(ACharacter* InstigatorCharacter);
 
 	void ExecuteDeath();
-
-public:
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Effects")
-	void StartDeathEffect();
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Effects")
-	void StartHitEffect();
-
-private:
-
-	void InitializeBlackboard();
-
-	bool IsState(EBlobStateName InputState);
-
-	void ChangeState(EBlobStateName InputState);
 	
 };

@@ -7,14 +7,6 @@
 #include "ChunkCharacter.generated.h"
 
 
-UENUM(BlueprintType)
-enum class EChunkStateName : uint8 {
-	GRAZE		UMETA(DisplayName = "Graze"),
-	CHASE		UMETA(DisplayName = "Chase"),
-	ATTACK		UMETA(DisplayName = "Attack"),
-	HIT			UMETA(DisplayName = "Hit")
-};
-
 UCLASS()
 class PROJECTENEMY_API AChunkCharacter : public AEnemyCharacter
 {
@@ -23,5 +15,10 @@ class PROJECTENEMY_API AChunkCharacter : public AEnemyCharacter
 public:
 
 	AChunkCharacter();
-	
+
+public:
+
+	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
+
+	virtual void SightResponse(ACharacter* InstigatorCharacter);
 };
