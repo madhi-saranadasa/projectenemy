@@ -27,7 +27,7 @@ void AChunkCharacter::SightResponse(ACharacter* InstigatorCharacter)
 	}
 }
 
-void AChunkCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+void AChunkCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
 {
 	if (!IsState(EEnemyStateName::HIT))
 	{

@@ -19,7 +19,7 @@ ABlobCharacter::ABlobCharacter()
 }
 
 
-void ABlobCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+void ABlobCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
 {
 	if (!IsState(EEnemyStateName::HIT))
 	{

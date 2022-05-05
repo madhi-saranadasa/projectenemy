@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerStateMachine.h"
+#include "../Framework/PawnInterface.h"
 #include "PlayerCharacter.generated.h"
 
 class UPlayerStateMachine;
@@ -13,7 +14,7 @@ class UAnimMontage;
 class UNiagaraComponent;
 
 UCLASS()
-class PROJECTENEMY_API APlayerCharacter : public ACharacter
+class PROJECTENEMY_API APlayerCharacter : public ACharacter, public IPawnInterface
 {
 	GENERATED_BODY()
 
@@ -49,6 +50,8 @@ public:
 
 	UFUNCTION()
 	void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation);
 
 	void OnAttackSuccess();
 

@@ -111,7 +111,7 @@ void AEnemyCharacter::ChangeState(EEnemyStateName InputState)
 }
 
 
-void AEnemyCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+void AEnemyCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
 {
 
 }

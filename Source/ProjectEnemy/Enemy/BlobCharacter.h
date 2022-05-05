@@ -18,7 +18,7 @@ public:
 
 public:
 
-	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
+	virtual void ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
 
 	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
 

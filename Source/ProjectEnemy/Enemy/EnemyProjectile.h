@@ -20,10 +20,10 @@ public:
 
 protected:
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	USphereComponent* SphereComp;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	UProjectileMovementComponent* MoveComp;
 
 protected:

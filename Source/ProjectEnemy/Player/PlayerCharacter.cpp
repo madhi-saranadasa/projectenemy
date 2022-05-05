@@ -135,6 +135,12 @@ void APlayerCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor*
 }
 
 
+void APlayerCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player Hit!"));
+}
+
+
 void APlayerCharacter::OnAttackSuccess()
 {
 	StateMachine->bAttackLanded = false;

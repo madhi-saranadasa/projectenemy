@@ -21,5 +21,5 @@ class PROJECTENEMY_API IPawnInterface
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-	void TakeDamage(APawn* InstigatorPawn, FVector HitLocation);
+	void ApplyDamage(APawn* InstigatorPawn, FVector HitLocation);
 };
