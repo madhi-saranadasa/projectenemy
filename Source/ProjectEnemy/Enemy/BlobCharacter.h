@@ -18,12 +18,8 @@ public:
 
 public:
 
-	virtual void ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation) override;
-
-	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
+	virtual void OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	virtual void SightResponse(ACharacter* InstigatorCharacter);
-
-	void ExecuteDeath();
 	
 };

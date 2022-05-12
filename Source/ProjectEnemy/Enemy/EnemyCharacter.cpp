@@ -9,6 +9,8 @@
 #include <AIController.h>
 #include "EnemyHealthComponent.h"
 #include "EnemySightComponent.h"
+#include "../Framework/PawnInterface.h"
+#include "../Player/PlayerCharacter.h"
 
 
 AEnemyCharacter::AEnemyCharacter()
@@ -53,7 +55,7 @@ void AEnemyCharacter::PostInitializeComponents()
 	// Hook up events
 	HealthComp->HealthReachedZero.AddDynamic(this, &AEnemyCharacter::MarkForDeath);
 	SightComp->SightResponse.AddDynamic(this, &AEnemyCharacter::SightResponse);
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyCharacter::OnCharacterHit);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyCharacter::OnCharacterOverlap);
 
 }
 
@@ -73,6 +75,65 @@ void AEnemyCharacter::BeginPlay()
 void AEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+
+void AEnemyCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy)
+{
+	if (!bSourceIsEnemy)
+	{
+		if (!IsState(EEnemyStateName::HIT))
+		{
+			// Store hit direction
+			FVector HitDirection = GetActorLocation() - InstigatorActor->GetActorLocation();
+			HitDirection = HitDirection.GetUnsafeNormal2D();
+			EnemyBlackboard->SetValueAsVector("HitDirection", HitDirection);
+
+
+			// Apply damage
+			HealthComp->ChangeHealth(-1);
+
+			// Screen Shake
+			StartHitEffect();
+
+			// Change state
+			ChangeState(EEnemyStateName::HIT);
+		}
+	}
+}
+
+
+void AEnemyCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor->Implements<UPawnInterface>())
+	{
+		IPawnInterface::Execute_TakeDamage(OtherActor, this, Hit.Location, true);
+	}
+}
+
+
+void AEnemyCharacter::SightResponse(ACharacter* InstigatorCharacter)
+{
+
+}
+
+
+void AEnemyCharacter::MarkForDeath()
+{
+	bMarkedForDeath = true;
+}
+
+
+void AEnemyCharacter::ExecuteDeath()
+{
+	StartDeathEffect();
+	Destroy();
+}
+
+
+bool AEnemyCharacter::GetDeathStatus()
+{
+	return bMarkedForDeath;
 }
 
 
@@ -108,40 +169,4 @@ bool AEnemyCharacter::IsState(EEnemyStateName InputState)
 void AEnemyCharacter::ChangeState(EEnemyStateName InputState)
 {
 	EnemyBlackboard->SetValueAsEnum("CurrentEnemyState", (uint8)InputState);
-}
-
-
-void AEnemyCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
-{
-
-}
-
-
-void AEnemyCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-
-}
-
-
-void AEnemyCharacter::SightResponse(ACharacter* InstigatorCharacter)
-{
-
-}
-
-
-void AEnemyCharacter::MarkForDeath()
-{
-	bMarkedForDeath = true;
-}
-
-
-void AEnemyCharacter::ExecuteDeath()
-{
-
-}
-
-
-bool AEnemyCharacter::GetDeathStatus()
-{
-	return bMarkedForDeath;
 }

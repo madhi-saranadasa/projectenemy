@@ -19,30 +19,10 @@ ABlobCharacter::ABlobCharacter()
 }
 
 
-void ABlobCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
+void ABlobCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!IsState(EEnemyStateName::HIT))
-	{
-		// Store hit direction
-		FVector HitDirection = GetActorLocation() - InstigatorPawn->GetActorLocation();
-		HitDirection = HitDirection.GetUnsafeNormal2D();
-		EnemyBlackboard->SetValueAsVector("HitDirection", HitDirection);
+	Super::OnCharacterOverlap(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);
 
-
-		// Apply damage
-		HealthComp->ChangeHealth(-1);
-
-		// Screen Shake
-		StartHitEffect();
-
-		// Change state
-		ChangeState(EEnemyStateName::HIT);
-	}
-}
-
-
-void ABlobCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
 	// If we hit something during the attack, then stop the attack
 	// Using dot product to check if the collision is in front of us or behind us
 	// Stop attack if we hit something in front of us
@@ -67,11 +47,4 @@ void ABlobCharacter::SightResponse(ACharacter* InstigatorCharacter)
 		EnemyBlackboard->SetValueAsObject("TargetCharacter", InstigatorCharacter);
 		ChangeState(EEnemyStateName::ATTACK);
 	}
-}
-
-
-void ABlobCharacter::ExecuteDeath()
-{
-	StartDeathEffect();
-	Destroy();
 }

@@ -18,32 +18,17 @@ AChunkCharacter::AChunkCharacter()
 	HealthComp->MaxHealth = 2;
 }
 
+void AChunkCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::OnCharacterOverlap(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);
+}
+
 void AChunkCharacter::SightResponse(ACharacter* InstigatorCharacter)
 {
 	if (IsState(EEnemyStateName::GRAZE))
 	{
 		EnemyBlackboard->SetValueAsObject("TargetCharacter", InstigatorCharacter);
 		ChangeState(EEnemyStateName::PURSUIT);
-	}
-}
-
-void AChunkCharacter::ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
-{
-	if (!IsState(EEnemyStateName::HIT))
-	{
-		// Store hit direction
-		FVector HitDirection = GetActorLocation() - InstigatorPawn->GetActorLocation();
-		HitDirection = HitDirection.GetUnsafeNormal2D();
-		EnemyBlackboard->SetValueAsVector("HitDirection", HitDirection);
-
-		// Apply damage
-		HealthComp->ChangeHealth(-1);
-
-		// Hit Effect - Particles + Screen shake
-		StartHitEffect();
-
-		// Change state
-		ChangeState(EEnemyStateName::HIT);
 	}
 }
 

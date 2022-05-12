@@ -7,7 +7,7 @@
 #include "PawnInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, Blueprintable)
 class UPawnInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -20,6 +20,6 @@ class PROJECTENEMY_API IPawnInterface
 
 public:
 
-	UFUNCTION(BlueprintNativeEvent)
-	void ApplyDamage(APawn* InstigatorPawn, FVector HitLocation);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void TakeDamage(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy);
 };

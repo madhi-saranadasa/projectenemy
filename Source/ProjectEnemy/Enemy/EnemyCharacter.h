@@ -45,10 +45,6 @@ protected:
 
 protected:
 
-	bool bMarkedForDeath = false;
-
-protected:
-
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;
@@ -59,22 +55,37 @@ public:
 
 protected:
 
-	virtual void ApplyDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation);
+	// WORLD RESPONSE
 
+	// Receive damage from others
+	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy);
+
+	// Trigger effects on overlapped actors
 	UFUNCTION()
-	virtual void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 	
+	// See player in vision cone
 	UFUNCTION()
 	virtual void SightResponse(ACharacter* InstigatorCharacter);
 	
+protected:
+
+	// VARIABLES FOR DEATH
+
+	bool bMarkedForDeath = false;
+
+	// Return death status
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	virtual bool GetDeathStatus();
+
+	// Step 1 - Flip death bool to true
 	UFUNCTION()
 	virtual void MarkForDeath();
 
+	// Step 2 - Implementation of death
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	virtual void ExecuteDeath();
 
-	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	virtual bool GetDeathStatus();
 
 public:
 

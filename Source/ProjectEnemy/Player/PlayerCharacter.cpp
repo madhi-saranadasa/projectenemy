@@ -58,7 +58,7 @@ void APlayerCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	
 	// Add events
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnCharacterHit);
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnCharacterOverlap);
 }
 
 
@@ -105,26 +105,29 @@ void APlayerCharacter::MoveRight(float AxisValue)
 
 void APlayerCharacter::StartMontage(UAnimMontage* InputAnim)
 {
-	// Play montages on mesh, should only called by the state machine
 	float MontageOutput = PlayAnimMontage(InputAnim, 1.0f, FName("Default"));
 }
 
 
-void APlayerCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void APlayerCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	
-	// Try progressing to knockback state if hit by AEnemyCharacter
-	AEnemyCharacter* HitEnemy = Cast<AEnemyCharacter>(OtherActor);
 
-	if (HitEnemy)
+}
+
+
+void APlayerCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy)
+{
+	if (bSourceIsEnemy)
 	{
 		if (StateMachine->bCanBeHit)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Player Hit!"));
+
 			if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT || StateMachine->GetCurrentState() == EPlayerStateName::AIM)
 			{
 				// Calculate the knockback vector and store in the state machine blackboard
 
-				FVector NewVector = GetActorLocation() - OtherActor->GetActorLocation();
+				FVector NewVector = GetActorLocation() - InstigatorActor->GetActorLocation();
 				NewVector = NewVector.GetUnsafeNormal2D();
 
 				StateMachine->KnockbackVector = NewVector;
@@ -132,12 +135,6 @@ void APlayerCharacter::OnCharacterHit(UPrimitiveComponent* HitComponent, AActor*
 			}
 		}
 	}
-}
-
-
-void APlayerCharacter::TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Player Hit!"));
 }
 
 

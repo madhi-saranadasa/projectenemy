@@ -49,9 +49,9 @@ public:
 	void StartMontage(UAnimMontage* InputAnim);
 
 	UFUNCTION()
-	void OnCharacterHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	void OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 
-	virtual void TakeDamage_Implementation(APawn* InstigatorPawn, FVector HitLocation);
+	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy);
 
 	void OnAttackSuccess();
 
