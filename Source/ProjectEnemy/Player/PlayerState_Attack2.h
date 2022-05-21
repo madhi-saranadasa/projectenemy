@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "PlayerState_Base.h"
-#include "PlayerState_Attack.generated.h"
+#include "PlayerState_Attack2.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTENEMY_API UPlayerState_Attack : public UPlayerState_Base
+class PROJECTENEMY_API UPlayerState_Attack2 : public UPlayerState_Base
 {
 	GENERATED_BODY()
 
 public:
 
-	UPlayerState_Attack();
+	UPlayerState_Attack2();
 
 public:
 
@@ -56,5 +56,4 @@ private:
 	FTimerHandle AttackTimerHandle;
 
 	FTimerHandle AttackCooldownTimerHandle;
-	
 };

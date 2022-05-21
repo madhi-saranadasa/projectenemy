@@ -24,6 +24,18 @@ public:
 
 	virtual void StartPlay() override;
 
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn Logic")
+	TSubclassOf<AEnemyCharacter> BlobAsset;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn Logic")
+	TSubclassOf<AEnemyCharacter> ChunkAsset;
+
+	UPROPERTY(EditAnywhere, Category = "Spawn Logic")
+	TArray<FVector> WaveList;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Game Rules")
@@ -43,8 +55,15 @@ protected:
 
 protected:
 
-	void PerformSpawnCheck();
+	void SpawnRequest();
 
 	UFUNCTION()
-	void OnQueryCompleted(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+	void RenderSpawnRequest(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
+
+
+private:
+
+	TArray<int32> EnemyListForWave;
+
+	TArray<int32> ChunkList;
 };

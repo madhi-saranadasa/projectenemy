@@ -16,9 +16,9 @@ void UPlayerState_Aim::OnStateEnter()
 	OwningCharacter->ToggleChargeParticle(true);
 
 	// Update movement parameters
-	OwningCharacter->UpdateMoveCompParameters(200.0f, 1000.0f, false);
+	OwningCharacter->UpdateMoveCompParameters(Speed, Acceleration, false, false);
 
-	// If previous state was dash, then keep going with timer/charge reset
+	// If previous state was dash, then keep going without timer/charge reset
 	if (StateMachine->PreviousState == EPlayerStateName::DASH)
 	{
 		return;
@@ -27,9 +27,12 @@ void UPlayerState_Aim::OnStateEnter()
 	// Set both timers
 	GetWorld()->GetTimerManager().SetTimer(PrimaryTimerHandle, this, &UPlayerState_Aim::PrimaryChargeReady, PrimaryDuration, false);
 	GetWorld()->GetTimerManager().SetTimer(SecondaryTimerHandle, this, &UPlayerState_Aim::SecondaryChargeReady, SecondaryDuration, false);
+
 	// Clear charges
 	StateMachine->bChargePrimary = false;
 	StateMachine->bChargeSecondary = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("Aim"));
 }
 
 
@@ -42,7 +45,7 @@ void UPlayerState_Aim::StateTick(float DeltaTime)
 	// Calculate look rotation
 	FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(OwningCharacter->GetActorLocation(), MousePosition);
 	// Calculate new rotation based on turn speed and the difference between current and target rotation
-	FRotator NewRotation = FMath::RInterpTo(OwningCharacter->GetActorRotation(), TargetRotation, DeltaTime, 5.0f);
+	FRotator NewRotation = FMath::RInterpTo(OwningCharacter->GetActorRotation(), TargetRotation, DeltaTime, TurnSpeed);
 	// Update rotation
 	OwningCharacter->SetActorRotation(NewRotation);
 }
@@ -60,9 +63,6 @@ void UPlayerState_Aim::OnStateExit()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PrimaryTimerHandle);
 		GetWorld()->GetTimerManager().ClearTimer(SecondaryTimerHandle);
-
-		//StateMachine->bChargePrimary = false;
-		//StateMachine->bChargeSecondary = false;
 	}
 }
 

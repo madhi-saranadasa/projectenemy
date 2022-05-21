@@ -29,6 +29,8 @@ void UPlayerState_Dash::OnStateEnter()
 	// Start timers
 	GetWorld()->GetTimerManager().SetTimer(DashTimerHandle, this, &UPlayerState_Dash::OnDashEnd, DashDuration, false);
 	GetWorld()->GetTimerManager().SetTimer(DashCooldownTimerHandle, this, &UPlayerState_Dash::OnDashCooldownEnd, DashDuration + AddedDashCooldown, false);
+
+	UE_LOG(LogTemp, Warning, TEXT("Dash"));
 }
 
 

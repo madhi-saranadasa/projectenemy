@@ -8,7 +8,6 @@
 #include <BehaviorTree/BlackboardComponent.h>
 #include "EnemyCharacter.generated.h"
 
-
 UENUM(BlueprintType)
 enum class EEnemyStateName : uint8 {
 	GRAZE		UMETA(DisplayName = "Graze"),
@@ -16,7 +15,6 @@ enum class EEnemyStateName : uint8 {
 	HIT			UMETA(DisplayName = "Hit"),
 	PURSUIT		UMETA(DisplayName = "Pursuit")
 };
-
 
 class UEnemyHealthComponent;
 class UEnemySightComponent;
@@ -55,14 +53,12 @@ public:
 
 protected:
 
-	// WORLD RESPONSE
-
 	// Receive damage from others
-	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy);
+	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, EDamageType IncomingDamageType);
 
 	// Trigger effects on overlapped actors
 	UFUNCTION()
-	virtual void OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	// See player in vision cone
 	UFUNCTION()

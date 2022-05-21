@@ -16,6 +16,14 @@ public:
 
 	UPlayerState_Default();
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly)
+	float Speed = 400.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float Acceleration = 1000.0f;
+
 public:
 
 	virtual void OnStateEnter() override;

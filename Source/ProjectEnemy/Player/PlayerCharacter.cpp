@@ -12,7 +12,10 @@
 #include <DrawDebugHelpers.h>
 #include "AttackVolume.h"
 #include <NiagaraComponent.h>
+#include "../Enemy/EnemyHealthComponent.h"
 
+
+#pragma region HOUSEKEEPING
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -28,15 +31,20 @@ APlayerCharacter::APlayerCharacter()
 	// Create attack volume component
 	AttackVolume = CreateDefaultSubobject<UAttackVolume>(TEXT("AttackVolume"));
 
+	// Create health component
+	HealthComp = CreateDefaultSubobject<UEnemyHealthComponent>(TEXT("HealthComp"));
 
-	// Rotation settings
+	// Initialize Rotation settings
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 	bUseControllerRotationYaw = false;
 
-	// Movement settings
-	GetCharacterMovement()->MaxAcceleration = 600.0f;
-	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	// Set up collision profile
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 }
 
 
@@ -53,35 +61,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 
-void APlayerCharacter::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-	
-	// Add events
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnCharacterOverlap);
-}
-
-
-void APlayerCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// Initializing the state machine
-	StateMachine->ChangeState(EPlayerStateName::DEFAULT);
-	StateMachine->bCanDash = true;
-	StateMachine->bCanBeHit = true;
-}
-
-
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	// Just update the state machine
-	StateMachine->StateTick(DeltaTime);
-}
-
-
 void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
@@ -90,6 +69,10 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
 }
 
+#pragma endregion
+
+
+#pragma region INPUT HANDLING
 
 void APlayerCharacter::MoveForward(float AxisValue)
 {
@@ -100,47 +83,6 @@ void APlayerCharacter::MoveForward(float AxisValue)
 void APlayerCharacter::MoveRight(float AxisValue)
 {
 	AddMovementInput(FVector::RightVector, AxisValue);
-}
-
-
-void APlayerCharacter::StartMontage(UAnimMontage* InputAnim)
-{
-	float MontageOutput = PlayAnimMontage(InputAnim, 1.0f, FName("Default"));
-}
-
-
-void APlayerCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-
-}
-
-
-void APlayerCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy)
-{
-	if (bSourceIsEnemy)
-	{
-		if (StateMachine->bCanBeHit)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player Hit!"));
-
-			if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT || StateMachine->GetCurrentState() == EPlayerStateName::AIM)
-			{
-				// Calculate the knockback vector and store in the state machine blackboard
-
-				FVector NewVector = GetActorLocation() - InstigatorActor->GetActorLocation();
-				NewVector = NewVector.GetUnsafeNormal2D();
-
-				StateMachine->KnockbackVector = NewVector;
-				StateMachine->ChangeState(EPlayerStateName::KNOCKBACK);
-			}
-		}
-	}
-}
-
-
-void APlayerCharacter::OnAttackSuccess()
-{
-	StateMachine->bAttackLanded = false;
 }
 
 
@@ -164,7 +106,7 @@ void APlayerCharacter::OnDashPress()
 void APlayerCharacter::OnAimStart()
 {
 	// Log aiming
-	StateMachine->SetAiming(true);
+	StateMachine->bAiming = true;
 
 	// Go to aim state if permitted
 	if (StateMachine->GetCurrentState() == EPlayerStateName::DEFAULT)
@@ -177,11 +119,26 @@ void APlayerCharacter::OnAimStart()
 void APlayerCharacter::OnAimEnd()
 {
 	// Log aiming
-	StateMachine->SetAiming(false);
+	StateMachine->bAiming = false;
 
 	// Exit aim state if currently in aim state
 	if (StateMachine->GetCurrentState() == EPlayerStateName::AIM)
 	{
+
+		if (StateMachine->bChargeSecondary)
+		{
+			StateMachine->ChangeState(EPlayerStateName::ATTACK2);
+		}
+		else if (StateMachine->bChargePrimary)
+		{
+			StateMachine->ChangeState(EPlayerStateName::ATTACK);
+		}
+		else
+		{
+			StateMachine->ChangeState(EPlayerStateName::DEFAULT);
+		}
+
+		/*
 		if (StateMachine->bChargePrimary | StateMachine->bChargeSecondary)
 		{
 			StateMachine->ChangeState(EPlayerStateName::ATTACK);
@@ -190,17 +147,10 @@ void APlayerCharacter::OnAimEnd()
 		{
 			StateMachine->ChangeState(EPlayerStateName::DEFAULT);
 		}
-		
+
+		*/
+
 	}
-}
-
-
-void APlayerCharacter::UpdateMoveCompParameters(float NewSpeed, float NewAccerlation, bool bNewOrientToMovement)
-{
-	// States can use this to modify the default movement mode
-	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-	GetCharacterMovement()->MaxAcceleration = NewAccerlation;
-	GetCharacterMovement()->bOrientRotationToMovement = bNewOrientToMovement;
 }
 
 
@@ -215,15 +165,104 @@ FVector APlayerCharacter::GetMousePosition()
 	FVector MousePosition;
 	FVector MouseDirection;
 	PlayerController->DeprojectMousePositionToWorld(MousePosition, MouseDirection);
-	
+
 	// Raycast information
 	FVector RayOrigin = PlayerController->PlayerCameraManager->GetCameraLocation();
 	FVector RayDirection = MousePosition - RayOrigin;
-	
+
 	// Find point on plane through  raycast
 	FVector OutputVector = FMath::RayPlaneIntersection(RayOrigin, RayDirection, FPlane(FVector::ZeroVector, FVector::UpVector));
-	//DrawDebugBox(GetWorld(), OutputVector, FVector::OneVector * 50.0f, FQuat::Identity, FColor::Red, false, 1.0f, 0, 2.0f);
 
 	return OutputVector;
+}
 
+#pragma  endregion
+
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Initializing the state machine
+	StateMachine->ChangeState(EPlayerStateName::DEFAULT);
+	StateMachine->bCanDash = true;
+	StateMachine->bCanBeHit = true;
+}
+
+
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Just update the state machine
+	StateMachine->StateTick(DeltaTime);
+}
+
+
+void APlayerCharacter::StartMontage(UAnimMontage* InputAnim)
+{
+	float MontageOutput = PlayAnimMontage(InputAnim, 1.0f, FName("Default"));
+}
+
+
+void APlayerCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, EDamageType IncomingDamageType)
+{
+	if (!StateMachine->bCanBeHit)
+	{
+		// exit out if hit is on cooldown
+		return;
+	}
+
+	EPlayerStateName CurrentStateCompare = StateMachine->GetCurrentState();
+
+
+	// Enemy bodies can only hurt in default and aim
+	if (IncomingDamageType == EDamageType::ENEMYBODY)
+	{
+		if (CurrentStateCompare == EPlayerStateName::DEFAULT || CurrentStateCompare == EPlayerStateName::AIM)
+		{
+			// Calculate the knockback vector and store in the state machine blackboard
+
+			FVector NewVector = GetActorLocation() - InstigatorActor->GetActorLocation();
+			NewVector = NewVector.GetUnsafeNormal2D();
+
+			StateMachine->KnockbackVector = NewVector;
+			StateMachine->ChangeState(EPlayerStateName::KNOCKBACK);
+
+			return;
+		}
+	}
+
+	// Enemy projectiles can hurt in default, aim, and normal attack
+	if (IncomingDamageType == EDamageType::ENEMYPROJ)
+	{
+		if (CurrentStateCompare == EPlayerStateName::DEFAULT || CurrentStateCompare == EPlayerStateName::AIM || CurrentStateCompare == EPlayerStateName::ATTACK)
+		{
+			// Calculate the knockback vector and store in the state machine blackboard
+
+			FVector NewVector = GetActorLocation() - InstigatorActor->GetActorLocation();
+			NewVector = NewVector.GetUnsafeNormal2D();
+
+			StateMachine->KnockbackVector = NewVector;
+			StateMachine->ChangeState(EPlayerStateName::KNOCKBACK);
+
+			return;
+		}
+	}
+}
+
+
+void APlayerCharacter::OnAttackSuccess()
+{
+	StateMachine->bAttackLanded = true;
+}
+
+
+void APlayerCharacter::UpdateMoveCompParameters(float NewSpeed, float NewAccerlation, bool bIgnoreInput, bool bNewOrientToMovement)
+{
+	// States can use this to establish movement
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+	GetCharacterMovement()->MaxAcceleration = NewAccerlation;
+	GetCharacterMovement()->bOrientRotationToMovement = bNewOrientToMovement;
+	GetController()->SetIgnoreMoveInput(bIgnoreInput);
 }

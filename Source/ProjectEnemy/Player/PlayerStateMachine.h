@@ -16,7 +16,8 @@ enum class EPlayerStateName : uint8 {
 	DASH			UMETA(DisplayName = "Dash"),
 	KNOCKBACK		UMETA(DisplayName = "Knockback"),
 	AIM				UMETA(DisplayName = "Aim"),
-	ATTACK			UMETA(DisplayName = "Attack")
+	ATTACK			UMETA(DisplayName = "Attack"),
+	ATTACK2			UMETA(DisplayName = "Attack2")
 };
 
 
@@ -36,7 +37,7 @@ protected:
 private:
 
 	UPROPERTY()
-	APlayerCharacter* OwningPC;
+	APlayerCharacter* OwningPlayerCharacter;
 
 	UPROPERTY()
 	EPlayerStateName CurrentStateName;
@@ -62,11 +63,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "States")
 	TSubclassOf<UPlayerState_Base> AttackState;
 
+	UPROPERTY(EditDefaultsOnly, Category = "States")
+	TSubclassOf<UPlayerState_Base> Attack2State;
+
 private:
 
 	void InstantiateState(TSubclassOf<UPlayerState_Base> InputState);
-
-	void SetPlayerCharacter();
 
 public:
 
@@ -97,10 +99,6 @@ public:
 	bool bAiming;
 
 	bool bJustCharged;
-
-	void SetAiming(bool InputBool);
-
-	void SetJustCharged(bool InputBool);
 
 	bool bChargePrimary;
 

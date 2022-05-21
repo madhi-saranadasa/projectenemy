@@ -1,19 +1,19 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PlayerState_Attack.h"
+#include "PlayerState_Attack2.h"
 #include "PlayerCharacter.h"
 #include "AttackVolume.h"
 #include <GameFramework/CharacterMovementComponent.h>
 
 
-UPlayerState_Attack::UPlayerState_Attack()
+UPlayerState_Attack2::UPlayerState_Attack2()
 {
-	StateName = EPlayerStateName::ATTACK;
+	StateName = EPlayerStateName::ATTACK2;
 }
 
 
-void UPlayerState_Attack::OnStateEnter()
+void UPlayerState_Attack2::OnStateEnter()
 {
 	// Update state machine
 	StateMachine->bCanAttack = false;
@@ -25,17 +25,17 @@ void UPlayerState_Attack::OnStateEnter()
 	OwningCharacter->StartMontage(AttackAnim);
 
 	// Play particle effects
-	OwningCharacter->PlayAttackParticles(true);
+	OwningCharacter->PlayAttackParticles(false);
 
 	// Start timers
-	GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UPlayerState_Attack::OnAttackEnd, AttackDuration, false);
-	GetWorld()->GetTimerManager().SetTimer(AttackCooldownTimerHandle, this, &UPlayerState_Attack::OnAttackCooldownEnd, AttackDuration + AddedAttackCooldown, false);
+	GetWorld()->GetTimerManager().SetTimer(AttackTimerHandle, this, &UPlayerState_Attack2::OnAttackEnd, AttackDuration, false);
+	GetWorld()->GetTimerManager().SetTimer(AttackCooldownTimerHandle, this, &UPlayerState_Attack2::OnAttackCooldownEnd, AttackDuration + AddedAttackCooldown, false);
 
-	UE_LOG(LogTemp, Warning, TEXT("Attack"));
+	UE_LOG(LogTemp, Warning, TEXT("Attack2"));
 }
 
 
-void UPlayerState_Attack::StateTick(float DeltaTime)
+void UPlayerState_Attack2::StateTick(float DeltaTime)
 {
 	float AlphaPoint = AttackCurve->GetFloatValue(GetWorld()->GetTimerManager().GetTimerElapsed(AttackTimerHandle) / AttackDuration);
 
@@ -51,11 +51,11 @@ void UPlayerState_Attack::StateTick(float DeltaTime)
 	}
 
 	// Activate attack volume
-	OwningCharacter->AttackVolume->SweepAttackVolume(DeltaTime*2.0f);
+	OwningCharacter->AttackVolume->SweepAttackVolume(DeltaTime * 2.0f);
 }
 
 
-void UPlayerState_Attack::OnStateExit()
+void UPlayerState_Attack2::OnStateExit()
 {
 	Super::OnStateExit();
 
@@ -63,16 +63,17 @@ void UPlayerState_Attack::OnStateExit()
 }
 
 
-void UPlayerState_Attack::OnAttackEnd()
+void UPlayerState_Attack2::OnAttackEnd()
 {
 	// Change state after timer expires if we are still in the attack state
-	if (StateMachine->GetCurrentState() == EPlayerStateName::ATTACK)
+	if (StateMachine->GetCurrentState() == EPlayerStateName::ATTACK2)
 	{
 		StateMachine->ChangeState(EPlayerStateName::DEFAULT);
 	}
 }
 
-void UPlayerState_Attack::OnAttackCooldownEnd()
+
+void UPlayerState_Attack2::OnAttackCooldownEnd()
 {
 	// Set Attack check after second time expires
 	StateMachine->bCanAttack = true;

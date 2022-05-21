@@ -12,7 +12,10 @@ UPlayerState_Default::UPlayerState_Default()
 
 void UPlayerState_Default::OnStateEnter()
 {
-	OwningCharacter->UpdateMoveCompParameters(400.0f, 1000.0f, true);
+	// Set new control settings
+	OwningCharacter->UpdateMoveCompParameters(Speed, Acceleration, false, true);
+
+	UE_LOG(LogTemp, Warning, TEXT("Default"));
 }
 
 

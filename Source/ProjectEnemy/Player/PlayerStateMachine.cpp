@@ -16,24 +16,32 @@ void UPlayerStateMachine::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Store reference to owner
-	SetPlayerCharacter();
-
 	// Instantiate states
 	InstantiateState(DefaultState);
 	InstantiateState(DashState);
 	InstantiateState(KnockbackState);
 	InstantiateState(AimState);
 	InstantiateState(AttackState);
+	InstantiateState(Attack2State);
 }
 
 
 void UPlayerStateMachine::InstantiateState(TSubclassOf<UPlayerState_Base> InputState)
 {
-	// check if blueprint is assigned
+	// Check if state asset is assigned in details panel
 	if (!InputState)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Trying to instantiate class but nothing is assigned"));
+		return;
+	}
+
+
+	// Prepare reference of player character for states to hold
+	APlayerCharacter* PlayerCharacterCast = Cast<APlayerCharacter>(GetOwner());
+
+	if (!PlayerCharacterCast)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to store player character reference on state machine"));
 		return;
 	}
 
@@ -42,7 +50,7 @@ void UPlayerStateMachine::InstantiateState(TSubclassOf<UPlayerState_Base> InputS
 	PlayerStates.Add(NewState);
 
 	// Fill context for state to use
-	NewState->FillStateContext(OwningPC, this);
+	NewState->FillStateContext(PlayerCharacterCast, this);
 }
 
 
@@ -86,28 +94,4 @@ EPlayerStateName UPlayerStateMachine::GetCurrentState()
 {
 	// Other classes can ask what the current state is
 	return CurrentState->StateName;
-}
-
-
-void UPlayerStateMachine::SetAiming(bool InputBool)
-{
-	bAiming = InputBool;
-}
-
-
-void UPlayerStateMachine::SetJustCharged(bool InputBool)
-{
-	bJustCharged = InputBool;
-}
-
-
-void UPlayerStateMachine::SetPlayerCharacter()
-{
-	// Store a player reference for later use. Not really used yet
-	APlayerCharacter* PCCast = Cast<APlayerCharacter>(GetOwner());
-
-	if (PCCast)
-	{
-		OwningPC = PCCast;
-	}
 }

@@ -26,6 +26,14 @@ public:
 
 private:
 
+	UPROPERTY(EditDefaultsOnly)
+	float Speed = 200.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float Acceleration = 1000.0f;
+
+	UPROPERTY(EditDefaultsOnly)
+	float TurnSpeed = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "State")
 	float PrimaryDuration = 1.0f;

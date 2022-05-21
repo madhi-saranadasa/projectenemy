@@ -35,16 +35,17 @@ AEnemyCharacter::AEnemyCharacter()
 
 	// RVO
 	GetCharacterMovement()->bUseRVOAvoidance = true;
-	GetCharacterMovement()->AvoidanceConsiderationRadius = 100.0f;
+	GetCharacterMovement()->AvoidanceConsiderationRadius = 200.0f;
 	
 	// Collision Profile
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 
-	// Disable camera collision on mesh
-	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	// Disable any collision for the mesh
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 }
 
 
@@ -55,7 +56,7 @@ void AEnemyCharacter::PostInitializeComponents()
 	// Hook up events
 	HealthComp->HealthReachedZero.AddDynamic(this, &AEnemyCharacter::MarkForDeath);
 	SightComp->SightResponse.AddDynamic(this, &AEnemyCharacter::SightResponse);
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AEnemyCharacter::OnCharacterOverlap);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemyCharacter::OnOverlap);
 
 }
 
@@ -78,9 +79,9 @@ void AEnemyCharacter::Tick(float DeltaTime)
 }
 
 
-void AEnemyCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy)
+void AEnemyCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, EDamageType IncomingDamageType)
 {
-	if (!bSourceIsEnemy)
+	if (IncomingDamageType == EDamageType::PLAYER)
 	{
 		if (!IsState(EEnemyStateName::HIT))
 		{
@@ -103,14 +104,13 @@ void AEnemyCharacter::TakeDamage_Implementation(AActor* InstigatorActor, FVector
 }
 
 
-void AEnemyCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+void AEnemyCharacter::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->Implements<UPawnInterface>())
 	{
-		IPawnInterface::Execute_TakeDamage(OtherActor, this, Hit.Location, true);
+		IPawnInterface::Execute_TakeDamage(OtherActor, this, SweepResult.Location, EDamageType::ENEMYBODY);
 	}
 }
-
 
 void AEnemyCharacter::SightResponse(ACharacter* InstigatorCharacter)
 {

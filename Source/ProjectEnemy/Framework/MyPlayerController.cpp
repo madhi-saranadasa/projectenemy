@@ -21,6 +21,7 @@ AMyPlayerController::AMyPlayerController()
 
 void AMyPlayerController::BeginPlay()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Controller In"));
 	Super::BeginPlay();
 
 }
@@ -30,7 +31,7 @@ void AMyPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	//InputComponent->BindAction("Spacebar", IE_Pressed, this, &AMyPlayerController::OnSpaceBarPress);
+	InputComponent->BindAction("Spawn", IE_Pressed, this, &AMyPlayerController::OnSpaceBarPress);
 }
 
 

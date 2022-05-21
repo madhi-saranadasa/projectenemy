@@ -48,7 +48,7 @@ void UAttackVolume::SweepAttackVolume(float DebugDrawDuration)
 			{
 				if (HitActor->Implements<UPawnInterface>())
 				{
-					IPawnInterface::Execute_TakeDamage(HitActor, Cast<APawn>(GetOwner()), Hit.Location, false);
+					IPawnInterface::Execute_TakeDamage(HitActor, Cast<APawn>(GetOwner()), Hit.Location, EDamageType::PLAYER);
 					
 					APlayerCharacter* PCCast = Cast<APlayerCharacter>(GetOwner());
 					if (PCCast)

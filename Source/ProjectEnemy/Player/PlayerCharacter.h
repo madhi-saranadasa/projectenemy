@@ -12,6 +12,7 @@ class UPlayerStateMachine;
 class UAttackVolume;
 class UAnimMontage;
 class UNiagaraComponent;
+class UEnemyHealthComponent;
 
 UCLASS()
 class PROJECTENEMY_API APlayerCharacter : public ACharacter, public IPawnInterface
@@ -25,8 +26,6 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-
-	virtual void PostInitializeComponents() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -44,26 +43,18 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UAttackVolume* AttackVolume;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UEnemyHealthComponent* HealthComp;
+
 public:
 
 	void StartMontage(UAnimMontage* InputAnim);
 
-	UFUNCTION()
-	void OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
-
-	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, bool bSourceIsEnemy);
+	virtual void TakeDamage_Implementation(AActor* InstigatorActor, FVector HitLocation, EDamageType IncomingDamageType);
 
 	void OnAttackSuccess();
 
-	void OnDashPress();
-
-	void OnAimStart();
-
-	void OnAimEnd();
-
-	void UpdateMoveCompParameters(float NewSpeed, float NewAccerlation, bool bNewOrientToMovement);
-
-	FVector GetMousePosition();
+	void UpdateMoveCompParameters(float NewSpeed, float NewAccerlation, bool bIgnoreInput, bool bNewOrientToMovement);
 
 public:
 
@@ -82,10 +73,20 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
 	void PlaySecondaryFlash();
 
-private:
+	UFUNCTION(BlueprintImplementableEvent, Category = "Particles")
+	void PlayAttackParticles(bool bPrimary);
+
+public:
 
 	void MoveForward(float AxisValue);
 
 	void MoveRight(float AxisValue);
 
+	void OnDashPress();
+
+	void OnAimStart();
+
+	void OnAimEnd();
+
+	FVector GetMousePosition();
 };

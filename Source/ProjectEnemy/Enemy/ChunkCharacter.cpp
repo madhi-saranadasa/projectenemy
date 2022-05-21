@@ -18,10 +18,6 @@ AChunkCharacter::AChunkCharacter()
 	HealthComp->MaxHealth = 2;
 }
 
-void AChunkCharacter::OnCharacterOverlap(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
-{
-	Super::OnCharacterOverlap(HitComponent, OtherActor, OtherComponent, NormalImpulse, Hit);
-}
 
 void AChunkCharacter::SightResponse(ACharacter* InstigatorCharacter)
 {
